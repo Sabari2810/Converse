@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "145775053623",
+    "project_id": "flutter-chat-fc934",
+    "storage_bucket": "flutter-chat-fc934.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:145775053623:android:2c476d54231178e2f7a8b2",
+        "android_client_info": {
+          "package_name": "com.sabarii.flutter_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "145775053623-pksljlfkpg7ijn2aep1vrticqd069b3i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBK1WS_ZLBRqJTympSnrAnucunlvNzHRzw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "145775053623-pksljlfkpg7ijn2aep1vrticqd069b3i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
