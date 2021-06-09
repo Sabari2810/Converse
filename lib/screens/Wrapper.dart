@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/RoomsModel.dart';
 import 'package:flutter_chat/screens/HomePage.dart';
@@ -24,19 +22,16 @@ class _WrapperState extends State<Wrapper> {
           textAlign: TextAlign.center,
         ),
         centerTitle: true,
-        backgroundColor: Colors.grey.shade900,
+        backgroundColor: Colors.green,
       ),
       body: Container(
-        decoration: BoxDecoration(color: Colors.grey),
+        decoration: BoxDecoration(color: Colors.black),
         child: StreamProvider<List<RoomsModel>>.value(
           initialData: [],
           value: Database().getChatRooms,
           child: ChatRooms(),
         ),
       ),
-      floatingActionButton: FloatingActionButton(child: Icon(Icons.add),onPressed: (){
-        Database().addChatRoom("ChatRoom");
-      },),
     );
   }
 }
