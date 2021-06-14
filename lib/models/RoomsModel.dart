@@ -1,4 +1,5 @@
 class RoomsModel{
   String title;
-  RoomsModel({this.title = ""});
+  String chatRoomDocId;
+  RoomsModel({this.title = "",this.chatRoomDocId=""});
 }

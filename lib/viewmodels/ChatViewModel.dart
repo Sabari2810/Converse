@@ -11,7 +11,7 @@ class ChatViewModel{
   }
 
   void addChat(String collectionname,String username,String message,Timestamp time){
-    Database().addMessage(collectionname, username, message , time);
+    // Database().addMessage(collectionname, username, message , time);
   }
 
 }

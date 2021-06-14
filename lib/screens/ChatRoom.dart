@@ -1,31 +1,68 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/ChatModel.dart';
+import 'package:flutter_chat/repos/ChatRoomRepo.dart';
+import 'package:flutter_chat/services/Auth.dart';
 import 'package:flutter_chat/services/Database.dart';
 import 'package:flutter_chat/viewmodels/ChatViewModel.dart';
 import 'package:provider/provider.dart';
 
-class ChatRoom extends StatelessWidget {
+class ChatRoomWithProvider extends StatelessWidget {
+  // const ({ Key? key }) : super(key: key);
+
   final String title;
-  ChatRoom({Key? key, this.title = ""}) : super(key: key);
+  final String chatRoomDocId;
+
+  ChatRoomWithProvider({this.title = "", this.chatRoomDocId = ""});
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+        create: (context) => ChatRoomRepo(),
+        child: ChatRoom(
+          title: title,
+          chatRoomDocId: chatRoomDocId,
+        ));
+  }
+}
+
+class ChatRoom extends StatelessWidget {
+  final String title;
+  final String chatRoomDocId;
+  ChatRoom({Key? key, this.title = "", this.chatRoomDocId = ""})
+      : super(key: key);
+
+  late ChatRoomRepo _chatRoomRepo;
+
+  @override
+  Widget build(BuildContext context) {
+    _chatRoomRepo = Provider.of<ChatRoomRepo>(context);
+    _chatRoomRepo.setCurrentChatRoom(title);
+    _chatRoomRepo.setCurrentChatRoomDocId(chatRoomDocId);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(this.title),
         centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () {
+                AuthUser().signOut();
+              },
+              icon: Icon(Icons.logout))
+        ],
       ),
       body: StreamProvider<List<ChatModel>>.value(
-          initialData: [],
-          value: ChatViewModel().chatRoom1,
-          child: ChatRoomWidget()),
+        initialData: [],
+        value: _chatRoomRepo.chatRoomChats,
+        child: ChatRoomWidget(),
+      ),
     );
   }
 }
 
 class ChatRoomWidget extends StatefulWidget {
-  const ChatRoomWidget({Key? key}) : super(key: key);
+  // const ChatRoomWidget({Key? key}) : super(key: key);
 
   @override
   _ChatRoomWidgetState createState() => _ChatRoomWidgetState();
@@ -34,10 +71,13 @@ class ChatRoomWidget extends StatefulWidget {
 class _ChatRoomWidgetState extends State<ChatRoomWidget> {
   String _chatMessage = "";
   final controller = TextEditingController();
+  late ChatRoomRepo _chatRoomRepo;
 
   @override
   Widget build(BuildContext context) {
     List<ChatModel> vm = Provider.of<List<ChatModel>>(context);
+    _chatRoomRepo = Provider.of<ChatRoomRepo>(context);
+
     return Scaffold(
       body: Column(
         children: [
@@ -45,9 +85,9 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
             child: ListView.builder(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               physics: BouncingScrollPhysics(),
-              reverse: false,
+              reverse: true,
               itemCount: vm.length,
-              // shrinkWrap: true,
+              shrinkWrap: true,
               itemBuilder: (context, index) {
                 return Align(
                   alignment: index.isOdd
@@ -64,10 +104,16 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
                         ),
                         padding: EdgeInsets.all(10.0),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(vm.elementAt(index).getname),
                             Text(vm.elementAt(index).message),
-                            Text(vm.elementAt(index).getDate)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                vm.elementAt(index).getDate,
+                              ),
+                            )
                           ],
                         ),
                       ),
@@ -113,8 +159,7 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
           icon: Icon(Icons.send_rounded),
           onPressed: () {
             if (_chatMessage != "") {
-              ChatViewModel().addChat("Chat Room 1", "Craig", _chatMessage,Timestamp.now());
-              controller.text = "";
+              _chatRoomRepo.addMessage("Sabari", _chatMessage, Timestamp.now());
             }
           },
         ),
