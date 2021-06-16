@@ -3,17 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/ChatModel.dart';
 import 'package:flutter_chat/repos/ChatRoomRepo.dart';
 import 'package:flutter_chat/services/Auth.dart';
-import 'package:flutter_chat/services/Database.dart';
-import 'package:flutter_chat/viewmodels/ChatViewModel.dart';
+import 'package:flutter_chat/utils/palette.dart';
 import 'package:provider/provider.dart';
 
 class ChatRoomWithProvider extends StatelessWidget {
   // const ({ Key? key }) : super(key: key);
 
-  final String title;
-  final String chatRoomDocId;
+  String title;
+  String chatRoomDocId;
+  String userDocId;
+  String displayName;
 
-  ChatRoomWithProvider({this.title = "", this.chatRoomDocId = ""});
+  ChatRoomWithProvider(
+      {this.title = "",
+      this.chatRoomDocId = "",
+      this.userDocId = "",
+      this.displayName = ""});
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +27,8 @@ class ChatRoomWithProvider extends StatelessWidget {
         child: ChatRoom(
           title: title,
           chatRoomDocId: chatRoomDocId,
+          userDocId: userDocId,
+          displayName: displayName,
         ));
   }
 }
@@ -29,7 +36,14 @@ class ChatRoomWithProvider extends StatelessWidget {
 class ChatRoom extends StatelessWidget {
   final String title;
   final String chatRoomDocId;
-  ChatRoom({Key? key, this.title = "", this.chatRoomDocId = ""})
+  final String userDocId;
+  final String displayName;
+  ChatRoom(
+      {Key? key,
+      this.title = "",
+      this.chatRoomDocId = "",
+      this.userDocId = "",
+      this.displayName = ""})
       : super(key: key);
 
   late ChatRoomRepo _chatRoomRepo;
@@ -37,32 +51,52 @@ class ChatRoom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _chatRoomRepo = Provider.of<ChatRoomRepo>(context);
+
     _chatRoomRepo.setCurrentChatRoom(title);
     _chatRoomRepo.setCurrentChatRoomDocId(chatRoomDocId);
 
     return Scaffold(
+      backgroundColor: Palette().bodyColor,
       appBar: AppBar(
-        title: Text(this.title),
+        backgroundColor: Palette().appBarColor,
+        title: Text(
+          this.title,
+          style: TextStyle(color: Colors.black),
+        ),
         centerTitle: true,
+        leading: BackButton(
+          color: Colors.black,
+        ),
         actions: [
           IconButton(
-              onPressed: () {
-                AuthUser().signOut();
-              },
-              icon: Icon(Icons.logout))
+            onPressed: () {
+              AuthUser().signOut();
+            },
+            icon: Icon(
+              Icons.logout,
+              color: Colors.black,
+            ),
+          )
         ],
       ),
       body: StreamProvider<List<ChatModel>>.value(
         initialData: [],
+        catchError: (_, __) => [],
         value: _chatRoomRepo.chatRoomChats,
-        child: ChatRoomWidget(),
+        child: ChatRoomWidget(
+          userDocId: userDocId,
+          displayName: displayName,
+        ),
       ),
     );
   }
 }
 
 class ChatRoomWidget extends StatefulWidget {
-  // const ChatRoomWidget({Key? key}) : super(key: key);
+  String userDocId;
+  String displayName;
+
+  ChatRoomWidget({this.userDocId = "", this.displayName = ""});
 
   @override
   _ChatRoomWidgetState createState() => _ChatRoomWidgetState();
@@ -70,62 +104,83 @@ class ChatRoomWidget extends StatefulWidget {
 
 class _ChatRoomWidgetState extends State<ChatRoomWidget> {
   String _chatMessage = "";
-  final controller = TextEditingController();
+  final _messageController = TextEditingController();
   late ChatRoomRepo _chatRoomRepo;
+  late List<ChatModel> _chats;
 
   @override
   Widget build(BuildContext context) {
-    List<ChatModel> vm = Provider.of<List<ChatModel>>(context);
+    _chats = Provider.of<List<ChatModel>>(context);
     _chatRoomRepo = Provider.of<ChatRoomRepo>(context);
 
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              physics: BouncingScrollPhysics(),
-              reverse: true,
-              itemCount: vm.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Align(
-                  alignment: index.isOdd
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
-                  child: Container(
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            physics: BouncingScrollPhysics(),
+            reverse: true,
+            itemCount: _chats.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return Align(
+                alignment: _chats.elementAt(index).userDocId == widget.userDocId
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: Container(
+                  color: Colors.transparent,
+                  margin: EdgeInsets.only(left: 10.0),
+                  child: Card(
+                    elevation: 0,
                     color: Colors.transparent,
-                    margin: EdgeInsets.only(left: 10.0),
-                    child: Card(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
-                          color: Colors.green,
-                        ),
-                        padding: EdgeInsets.all(10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(vm.elementAt(index).getname),
-                            Text(vm.elementAt(index).message),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                vm.elementAt(index).getDate,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: Colors.grey.shade200,
+                      ),
+                      padding: EdgeInsets.all(10.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          removeProfileDet(index)
+                              ? Text("")
+                              : CircleAvatar(
+                                  child:
+                                      Text(_chats.elementAt(index).getname[0]),
+                                ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              removeProfileDet(index)
+                                  ? Container()
+                                  : Text(
+                                      _chats.elementAt(index).getname,
+                                    ),
+                              SizedBox(
+                                height: 3,
                               ),
-                            )
-                          ],
-                        ),
+                              Text(
+                                _chats.elementAt(index).message,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
-          _textInput(context)
-        ],
-      ),
+        ),
+        _textInput(context)
+      ],
     );
   }
 
@@ -137,7 +192,7 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
         SizedBox(width: 16),
         Flexible(
           child: TextFormField(
-            controller: controller,
+            controller: _messageController,
             keyboardType: TextInputType.text,
             maxLines: 2,
             obscureText: false,
@@ -159,12 +214,27 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
           icon: Icon(Icons.send_rounded),
           onPressed: () {
             if (_chatMessage != "") {
-              _chatRoomRepo.addMessage("Sabari", _chatMessage, Timestamp.now());
+              _chatRoomRepo.addMessage(widget.displayName, _chatMessage,
+                  Timestamp.now(), widget.userDocId);
+              _messageController.text = "";
             }
           },
         ),
         SizedBox(width: 16)
       ],
     );
+  }
+
+  bool removeProfileDet(int currentIndex) {
+    if (currentIndex < _chats.length - 1) {
+      if (_chats.elementAt(currentIndex).userDocId ==
+          _chats.elementAt(currentIndex + 1).userDocId) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 }

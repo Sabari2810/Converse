@@ -81,8 +81,8 @@ class _SignInState extends State<SignIn> {
               ElevatedButton(
                 onPressed: () async{
                   dynamic res = await _authUser.sigInUsingEmail(_email, _password);
-                  if(res == "user-not-found"){
-                    showToast(context, "Invalid User");
+                  if(res.runtimeType == String){
+                    showToast(context, res);
                   }
                   else if(res == null){
                     showToast(context, "Something Went Wrong");

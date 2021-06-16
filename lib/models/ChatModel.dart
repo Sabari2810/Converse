@@ -5,8 +5,9 @@ class ChatModel{
  final String name;
  final String message;
  final Timestamp timestamp;
+ final String userDocId;
 
-ChatModel({required this.name,required this.message,required this.timestamp});
+ChatModel({required this.name,required this.message,required this.timestamp,required this.userDocId});
 
 
 get getname{
@@ -15,7 +16,7 @@ get getname{
 
 String get getDate{
   DateTime datetime = timestamp.toDate();
-  return datetime.hour.toString()+datetime.minute.toString()+datetime.second.toString();
+  return datetime.toIso8601String();
 }
 
 }

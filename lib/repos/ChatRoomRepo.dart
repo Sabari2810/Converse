@@ -30,6 +30,7 @@ class ChatRoomRepo with ChangeNotifier {
                   name: doc.get("Name"),
                   message: doc.get("Message"),
                   timestamp: doc.get("Timestamp"),
+                  userDocId: doc.get("UserDocId")
                 ),
               )
               .toList(),
@@ -37,10 +38,10 @@ class ChatRoomRepo with ChangeNotifier {
   }
 
   void addMessage(
-      String username, String message, Timestamp time) {
+      String username, String message, Timestamp time, String userDocId) {
     _firestore
         .collection("Rooms").doc(this.currentChatRoomDocId).collection("chats")
-        .add({"Name": username, "Message": message, "Timestamp": time});
+        .add({"Name": username, "Message": message, "Timestamp": time,"UserDocId" : userDocId});
   }
 
 }

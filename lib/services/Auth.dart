@@ -10,9 +10,14 @@ class AuthUser with ChangeNotifier {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String userid = "";
+  String currentUserName = "";
 
   void setUserId(String uid) {
     this.userid = uid;
+  }
+
+  void setUserName(String userName){
+    this.currentUserName = userName;
   }
 
   Future<dynamic> registerUsingEmail(
@@ -20,6 +25,7 @@ class AuthUser with ChangeNotifier {
     try {
       var firebaseuser = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
+      await firebaseuser.user!.updateDisplayName(username);
       if (firebaseuser.user!.uid != "") {
         var docrefid = await Database()
             .createNewUser(username, email, firebaseuser.user!.uid, password);
@@ -46,12 +52,19 @@ class AuthUser with ChangeNotifier {
         _firestore.collection("users").doc(this.userid).update({
           "isLoggedIn": true,
         });
+        setUserName(firebaseuser.user!.displayName.toString());
         return _createUserFromFirebaseUser(firebaseuser);
       }
     } catch (e) {
       if (e is FirebaseAuthException) {
         if (e.code == "user-not-found") {
-          return e.code;
+          return "Invalid User";
+        }
+        else if(e.code == "wrong-password"){
+          return "Invalid Password";
+        }
+        else if(e.code == "too-many-requests"){
+          return e.message;
         }
       }
       return null;
@@ -75,12 +88,14 @@ class AuthUser with ChangeNotifier {
     return UserModel(
       id: firebaseuser.user!.uid,
       email: firebaseuser.user!.email.toString(),
+      displayName: firebaseuser.user!.displayName.toString()
     );
   }
 
   void setUserIdInLocalStorage(String uid) async {
     SharedPreferences _preferences = await SharedPreferences.getInstance();
     _preferences.setString("flutter_chat_user_id", uid);
+    getUserIdFromLocalStorage();
   }
 
   Future<String?> getUserIdFromLocalStorage() async {
@@ -90,12 +105,6 @@ class AuthUser with ChangeNotifier {
   }
 
   Stream<bool> get getSession {
-    // return _firestore.collection("users")
-    //     .where("UserId", isEqualTo: userid)
-    //     .snapshots()
-    //     .map(
-    //       (e) => e.docs[0].get("isLoggedIn"),
-    //     );
     return _firestore
         .collection("users")
         .doc(this.userid)
@@ -109,4 +118,5 @@ class AuthUser with ChangeNotifier {
         .doc(this.userid)
         .update({"isLoggedIn": false});
   }
+
 }

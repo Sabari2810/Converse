@@ -68,6 +68,8 @@ class _ChatRoomsState extends State<ChatRooms> {
                               builder: (context) => ChatRoomWithProvider(
                                 title: rooms.elementAt(index).title.toString(),
                                 chatRoomDocId: rooms.elementAt(index).chatRoomDocId,
+                                userDocId: _authUser.userid,
+                                displayName : _authUser.currentUserName,
                               ),
                             ),
                           );

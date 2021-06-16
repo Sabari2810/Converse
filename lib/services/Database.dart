@@ -31,6 +31,7 @@ class Database {
                   name: doc.get("Name"),
                   message: doc.get("Message"),
                   timestamp: doc.get("Timestamp"),
+                  userDocId: doc.get("UserDocId")
                 ),
               )
               .toList());
