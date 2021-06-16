@@ -22,7 +22,7 @@ class Wrapper extends StatelessWidget {
     return Consumer<AuthUser>(
       builder: (context, value, widget) {
         return FutureBuilder(
-          future: _authUser.getUserIdFromLocalStorage(),
+          future: value.getUserIdFromLocalStorage(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return StreamProvider<bool>.value(
