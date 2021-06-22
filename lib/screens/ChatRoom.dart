@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/ChatModel.dart';
 import 'package:flutter_chat/repos/ChatRoomRepo.dart';
-import 'package:flutter_chat/services/Auth.dart';
 import 'package:flutter_chat/utils/palette.dart';
 import 'package:provider/provider.dart';
 
@@ -63,17 +62,16 @@ class ChatRoom extends StatelessWidget {
           this.title,
           style: TextStyle(color: Colors.black),
         ),
-        centerTitle: true,
         leading: BackButton(
           color: Colors.black,
         ),
         actions: [
           IconButton(
             onPressed: () {
-              AuthUser().signOut();
+              // AuthUser().signOut();
             },
             icon: Icon(
-              Icons.logout,
+              Icons.more_vert_sharp,
               color: Colors.black,
             ),
           )
@@ -146,7 +144,7 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           removeProfileDet(index)
-                              ? Text("")
+                              ? Container()
                               : CircleAvatar(
                                   child:
                                       Text(_chats.elementAt(index).getname[0]),
@@ -179,7 +177,8 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
             },
           ),
         ),
-        _textInput(context)
+        _textInput(context),
+        SizedBox(height: 3,)
       ],
     );
   }
@@ -189,12 +188,11 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SizedBox(width: 16),
+        SizedBox(width: 20),
         Flexible(
           child: TextFormField(
             controller: _messageController,
             keyboardType: TextInputType.text,
-            maxLines: 2,
             obscureText: false,
             onChanged: (val) {
               setState(() {
@@ -203,8 +201,12 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
             },
             decoration: InputDecoration(
               focusedBorder: InputBorder.none,
+              // border: OutlineInputBorder(
+              //   borderRadius: BorderRadius.circular(20),
+              // ),
               border: InputBorder.none,
               labelStyle: TextStyle(color: Colors.grey.shade100),
+              isDense: true,
               hintText: 'Send message',
             ),
           ),

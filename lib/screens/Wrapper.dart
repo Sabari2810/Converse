@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/RoomsModel.dart';
-import 'package:flutter_chat/models/UserModel.dart';
-import 'package:flutter_chat/repos/ChatRoomRepo.dart';
 import 'package:flutter_chat/screens/ChatRooms.dart';
 import 'package:flutter_chat/screens/Register.dart';
 import 'package:flutter_chat/screens/SignIn.dart';
@@ -17,7 +15,7 @@ class Wrapper extends StatelessWidget {
   Widget build(BuildContext context) {
 
     _authUser = Provider.of<AuthUser>(context,listen: false);
-    _authUser.getUserIdFromLocalStorage();
+    // _authUser.getUserIdFromLocalStorage();
 
     return Consumer<AuthUser>(
       builder: (context, value, widget) {
@@ -61,7 +59,9 @@ class _WrapperWidgetState extends State<WrapperWidget> {
   Widget build(BuildContext context) {
 
     bool res = Provider.of<bool>(context);
-
+    AuthUser _auth = Provider.of<AuthUser>(context);
+    
+    _auth.getUserNameFromFirebase();
     return res == false
         ? showSignIn
             ? SignIn(toggle: toggleView)

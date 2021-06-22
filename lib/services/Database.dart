@@ -7,13 +7,14 @@ class Database {
 
   Stream<List<RoomsModel>> get getChatRooms {
     return _firestore
-        .collection("Rooms")
+        .collection("Rooms").orderBy("Title")
         .snapshots()
         .map((snapshots) => snapshots.docs
             .map(
               (e) => RoomsModel(
                 title: e.get("Title"),
-                chatRoomDocId: e.id
+                chatRoomDocId: e.id,
+                image: e.get("Image")
               ),
             )
             .toList());

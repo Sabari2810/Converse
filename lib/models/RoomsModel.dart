@@ -1,5 +1,6 @@
 class RoomsModel{
   String title;
   String chatRoomDocId;
-  RoomsModel({this.title = "",this.chatRoomDocId=""});
+  String image;
+  RoomsModel({this.title = "",this.chatRoomDocId="",this.image =""});
 }

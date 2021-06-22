@@ -53,6 +53,9 @@ class AuthUser with ChangeNotifier {
           "isLoggedIn": true,
         });
         setUserName(firebaseuser.user!.displayName.toString());
+        String id = await _firestore.collection("users").where("UserId",isEqualTo: firebaseuser.user!.uid).get().then((value) => value.docs[0].id);
+        setUserIdInLocalStorage(id);
+        notifyListeners();
         return _createUserFromFirebaseUser(firebaseuser);
       }
     } catch (e) {
@@ -69,10 +72,6 @@ class AuthUser with ChangeNotifier {
       }
       return null;
     }
-  }
-
-  Future<void> signOut() async {
-    await _auth.signOut();
   }
 
   Stream<UserModel> get onauthchanged {
@@ -110,6 +109,12 @@ class AuthUser with ChangeNotifier {
         .doc(this.userid)
         .snapshots()
         .map((event) => event.get("isLoggedIn"));
+  }
+
+  void getUserNameFromFirebase() async{
+    dynamic res = await _firestore.collection("users").doc(this.userid).get();
+    dynamic res2 = res["UserName"];
+    this.setUserName(res2);
   }
 
   logoutSession() async {

@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_chat/models/ChatModel.dart';
@@ -43,5 +45,7 @@ class ChatRoomRepo with ChangeNotifier {
         .collection("Rooms").doc(this.currentChatRoomDocId).collection("chats")
         .add({"Name": username, "Message": message, "Timestamp": time,"UserDocId" : userDocId});
   }
+
+  
 
 }

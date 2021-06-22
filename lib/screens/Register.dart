@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/UserModel.dart';
-import 'package:flutter_chat/screens/SignIn.dart';
-import 'package:flutter_chat/services/Auth.dart';
+import 'package:flutter_chat/utils/palette.dart';
 import 'package:flutter_chat/utils/toast.dart';
 import 'package:flutter_chat/viewmodels/RegisterViewModel.dart';
 
@@ -25,31 +24,30 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Register with Flutter Chat"),
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-              widget.toggle();
-            },
-            icon: Icon(
-              Icons.login_outlined,
-              color: Colors.white,
-            ),
-            label: Text(
-              "Sign in",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
       body: Center(
         child: Container(
           padding: EdgeInsets.only(left: 20.0, right: 20.0),
           child: Form(
             key: _formKey,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
+                Container(
+                  child: RichText(
+                    text: TextSpan(
+                      style: TextStyle(color: Colors.black, fontSize: 25.0),
+                      children: [
+                        TextSpan(text: "Sign up with "),
+                        TextSpan(
+                          text: "Dash",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 SizedBox(
                   height: 20.0,
                 ),
@@ -72,7 +70,15 @@ class _RegisterState extends State<Register> {
                     });
                   },
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), labelText: "Email"),
+                    border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black)),
+                    labelText: "Email",
+                    labelStyle: TextStyle(color: Colors.black),
+                    focusColor: Colors.black,
+                    focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Palette().appBarColor)),
+                  ),
                 ),
                 SizedBox(
                   height: 20.0,
@@ -90,24 +96,51 @@ class _RegisterState extends State<Register> {
                 SizedBox(
                   height: 20.0,
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      dynamic res = await RegistrationViewModel()
-                          .registerUsingEmail(_username, _email, _password);
-                      if (res == null) {
-                        showToast(context, "Something Went Wrong");
+                Container(
+                  padding: EdgeInsets.only(
+                      top: 10, bottom: 10, left: 20, right: 20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Palette().appBarColor,
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      if (_formKey.currentState!.validate()) {
+                        dynamic res = await RegistrationViewModel()
+                            .registerUsingEmail(
+                                _username, _email, _password);
+                        if (res == null) {
+                          showToast(context, "Something Went Wrong");
+                        }
+                        if (res.runtimeType == String) {
+                          showToast(context, res);
+                        }
+                        if (res.runtimeType == UserModel) {
+                          showToast(context, "Registered Successfully");
+                          widget.toggle();
+                        }
                       }
-                      if (res.runtimeType == String) {
-                        showToast(context, res);
-                      }
-                      if (res.runtimeType == UserModel) {
-                        showToast(context, "Registered Successfully");
+                    },
+                    child: Text("Register"),
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Already have an account? "),
+                    InkWell(
+                      onTap: () {
                         widget.toggle();
-                      }
-                    }
-                  },
-                  child: Text("Register"),
+                      },
+                      child: Text(
+                        "Sign In",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
                 )
               ],
             ),
