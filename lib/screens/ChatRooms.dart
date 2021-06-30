@@ -31,25 +31,6 @@ class _ChatRoomsState extends State<ChatRooms> {
     AuthUser _authUser = Provider.of<AuthUser>(context);
 
     return Scaffold(
-      // bottomNavigationBar: BottomNavigationBar(
-      //   onTap: (index) {
-      //     print(index);
-      //   },
-      //   items: [
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.search),
-      //       label: "Search",
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.verified_user),
-      //       label: "Profile",
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.logout),
-      //       label: "Log out",
-      //     ),
-      //   ],
-      // ),
       persistentFooterButtons: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -162,6 +143,7 @@ class _ChatRoomsState extends State<ChatRooms> {
                                   rooms.elementAt(index).chatRoomDocId,
                               userDocId: _authUser.userid,
                               displayName: _authUser.currentUserName,
+                              image: rooms.elementAt(index).image,
                             ),
                           ),
                         );
@@ -174,9 +156,6 @@ class _ChatRoomsState extends State<ChatRooms> {
                           borderRadius: BorderRadius.circular(20),
                           image: DecorationImage(
                               fit: BoxFit.fill,
-                              // image: NetworkImage(
-                              //   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwy4yt4ozcMfk1kGbhgMPxolXmlawudTRujQ&usqp=CAU",
-                              // ),
                               image: MemoryImage(
                                 base64.decode(
                                   rooms.elementAt(index).image,

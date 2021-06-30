@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/ChatModel.dart';
@@ -12,12 +14,14 @@ class ChatRoomWithProvider extends StatelessWidget {
   String chatRoomDocId;
   String userDocId;
   String displayName;
+  String image;
 
   ChatRoomWithProvider(
       {this.title = "",
       this.chatRoomDocId = "",
       this.userDocId = "",
-      this.displayName = ""});
+      this.displayName = "",
+      this.image = ""});
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +32,7 @@ class ChatRoomWithProvider extends StatelessWidget {
           chatRoomDocId: chatRoomDocId,
           userDocId: userDocId,
           displayName: displayName,
+          image: image,
         ));
   }
 }
@@ -37,12 +42,15 @@ class ChatRoom extends StatelessWidget {
   final String chatRoomDocId;
   final String userDocId;
   final String displayName;
+  final String image;
+
   ChatRoom(
       {Key? key,
       this.title = "",
       this.chatRoomDocId = "",
       this.userDocId = "",
-      this.displayName = ""})
+      this.displayName = "",
+      this.image = ""})
       : super(key: key);
 
   late ChatRoomRepo _chatRoomRepo;
@@ -58,9 +66,30 @@ class ChatRoom extends StatelessWidget {
       backgroundColor: Palette().bodyColor,
       appBar: AppBar(
         backgroundColor: Palette().appBarColor,
-        title: Text(
-          this.title,
-          style: TextStyle(color: Colors.black),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                image: DecorationImage(
+                  fit: BoxFit.fill,
+                  image: MemoryImage(
+                    base64.decode(image)
+                  )
+                )
+              ),
+            ),
+            SizedBox(
+              width: 8.0,
+            ),
+            Text(
+              this.title,
+              style: TextStyle(color: Colors.black),
+            ),
+          ],
         ),
         leading: BackButton(
           color: Colors.black,
@@ -178,7 +207,9 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
           ),
         ),
         _textInput(context),
-        SizedBox(height: 3,)
+        SizedBox(
+          height: 3,
+        )
       ],
     );
   }

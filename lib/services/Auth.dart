@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/UserModel.dart';
-import 'package:flutter_chat/services/Database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthUser with ChangeNotifier {
@@ -16,7 +15,7 @@ class AuthUser with ChangeNotifier {
     this.userid = uid;
   }
 
-  void setUserName(String userName){
+  void setUserName(String userName) {
     this.currentUserName = userName;
   }
 
@@ -27,8 +26,7 @@ class AuthUser with ChangeNotifier {
           email: email, password: password);
       await firebaseuser.user!.updateDisplayName(username);
       if (firebaseuser.user!.uid != "") {
-        var docrefid = await Database()
-            .createNewUser(username, email, firebaseuser.user!.uid, password);
+        var docrefid = await createNewUser(username, email, firebaseuser.user!.uid);
         this.setUserIdInLocalStorage(docrefid);
         notifyListeners();
       }
@@ -48,12 +46,14 @@ class AuthUser with ChangeNotifier {
     try {
       UserCredential firebaseuser = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
+      // String id = await _firestore.collection("users").where("UserId",isEqualTo: firebaseuser.user!.uid).get().then((value) => value.docs[0].id);
+      String id = await getUserDocRefId(firebaseuser.user!.uid);
       if (firebaseuser.user!.email != null) {
-        _firestore.collection("users").doc(this.userid).update({
+        _firestore.collection("users").doc(id).update({
           "isLoggedIn": true,
         });
         setUserName(firebaseuser.user!.displayName.toString());
-        String id = await _firestore.collection("users").where("UserId",isEqualTo: firebaseuser.user!.uid).get().then((value) => value.docs[0].id);
+
         setUserIdInLocalStorage(id);
         notifyListeners();
         return _createUserFromFirebaseUser(firebaseuser);
@@ -62,11 +62,9 @@ class AuthUser with ChangeNotifier {
       if (e is FirebaseAuthException) {
         if (e.code == "user-not-found") {
           return "Invalid User";
-        }
-        else if(e.code == "wrong-password"){
+        } else if (e.code == "wrong-password") {
           return "Invalid Password";
-        }
-        else if(e.code == "too-many-requests"){
+        } else if (e.code == "too-many-requests") {
           return e.message;
         }
       }
@@ -85,10 +83,9 @@ class AuthUser with ChangeNotifier {
 
   UserModel _createUserFromFirebaseUser(UserCredential firebaseuser) {
     return UserModel(
-      id: firebaseuser.user!.uid,
-      email: firebaseuser.user!.email.toString(),
-      displayName: firebaseuser.user!.displayName.toString()
-    );
+        id: firebaseuser.user!.uid,
+        email: firebaseuser.user!.email.toString(),
+        displayName: firebaseuser.user!.displayName.toString());
   }
 
   void setUserIdInLocalStorage(String uid) async {
@@ -99,8 +96,9 @@ class AuthUser with ChangeNotifier {
 
   Future<String?> getUserIdFromLocalStorage() async {
     final prefs = await SharedPreferences.getInstance();
-    this.setUserId(prefs.getString("flutter_chat_user_id")!);
-    return prefs.getString("flutter_chat_user_id");
+    var userid = prefs.getString("flutter_chat_user_id") ?? "";
+    this.setUserId(userid);
+    return prefs.getString("flutter_chat_user_id") ?? null;
   }
 
   Stream<bool> get getSession {
@@ -111,7 +109,7 @@ class AuthUser with ChangeNotifier {
         .map((event) => event.get("isLoggedIn"));
   }
 
-  void getUserNameFromFirebase() async{
+  void getUserNameFromFirebase() async {
     dynamic res = await _firestore.collection("users").doc(this.userid).get();
     dynamic res2 = res["UserName"];
     this.setUserName(res2);
@@ -124,4 +122,24 @@ class AuthUser with ChangeNotifier {
         .update({"isLoggedIn": false});
   }
 
+  Future<String> getUserDocRefId(String userid) async {
+    return await _firestore
+        .collection("users")
+        .where("UserId", isEqualTo: userid)
+        .get()
+        .then((value) => value.docs[0].id);
+  }
+
+  Future<String> createNewUser(
+      String username, String email, String uid) async {
+    var res = await _firestore.collection("users").add(
+      {
+        "UserName": username,
+        "UserId": uid,
+        "Email": email,
+        "isLoggedIn": true,
+      },
+    ).then((value) => value.id);
+    return res;
+  }
 }

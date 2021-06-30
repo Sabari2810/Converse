@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_chat/services/Auth.dart';
 import 'package:flutter_chat/utils/palette.dart';
 import 'package:flutter_chat/utils/toast.dart';
+import 'package:flutter_chat/widgets/Logo.dart';
 import 'package:provider/provider.dart';
 
 class SignIn extends StatefulWidget {
@@ -33,6 +34,10 @@ class _SignInState extends State<SignIn> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Logo(),
+            SizedBox(
+              height: 30,
+            ),
             Container(
               child: RichText(
                 text: TextSpan(
@@ -40,7 +45,7 @@ class _SignInState extends State<SignIn> {
                   children: [
                     TextSpan(text: "Sign in to "),
                     TextSpan(
-                      text: "Dash",
+                      text: "Converse",
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic),
@@ -60,9 +65,7 @@ class _SignInState extends State<SignIn> {
                     validator: (val) => validateEmail(val!),
                     onChanged: (val) {
                       _signInKey.currentState!.validate();
-                      setState(() {
                         _email = val;
-                      });
                     },
                     decoration: InputDecoration(
                         border: OutlineInputBorder(), labelText: "Email"),
@@ -74,9 +77,7 @@ class _SignInState extends State<SignIn> {
                     validator: (val) => validatePassword(val!),
                     onChanged: (val) {
                       _signInKey.currentState!.validate();
-                      setState(() {
                         _password = val;
-                      });
                     },
                     obscureText: true,
                     decoration: InputDecoration(
@@ -143,8 +144,8 @@ class _SignInState extends State<SignIn> {
     return null;
   }
 
-  dynamic validatePassword(String password){
-    if(password.length == 0){
+  dynamic validatePassword(String password) {
+    if (password.length == 0) {
       return "Field cannot be empty";
     }
     return null;

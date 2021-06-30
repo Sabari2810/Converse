@@ -1,15 +1,27 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models/RoomsModel.dart';
+import 'package:flutter_chat/repos/ChatRoomsRepo.dart';
 import 'package:flutter_chat/screens/ChatRooms.dart';
 import 'package:flutter_chat/screens/Register.dart';
 import 'package:flutter_chat/screens/SignIn.dart';
 import 'package:flutter_chat/services/Auth.dart';
-import 'package:flutter_chat/services/Database.dart';
 import 'package:provider/provider.dart';
 
-class Wrapper extends StatelessWidget {
+class Wrapper extends StatefulWidget {
+  @override
+  _WrapperState createState() => _WrapperState();
+}
+
+class _WrapperState extends State<Wrapper> {
   late AuthUser _authUser;
+
+  bool showSignIn = true;
+
+  void toggleView() {
+    setState((){
+      this.showSignIn = !showSignIn;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +41,11 @@ class Wrapper extends StatelessWidget {
                 catchError: (_, __) => false,
                 child: WrapperWidget(),
               );
+            }
+            else if(snapshot.data == null){
+            return showSignIn
+            ? SignIn(toggle: toggleView)
+            : Register(toggle: toggleView);
             } else {
               return CircularProgressIndicator();
             }
@@ -68,7 +85,7 @@ class _WrapperWidgetState extends State<WrapperWidget> {
             : Register(toggle: toggleView)
         : StreamProvider<List<RoomsModel>>.value(
             initialData: [],
-            value: Database().getChatRooms,
+            value: ChatRoomsRepo().getChatRooms,
             child: ChatRooms(),
           );
   }

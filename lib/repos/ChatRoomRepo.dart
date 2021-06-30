@@ -46,6 +46,4 @@ class ChatRoomRepo with ChangeNotifier {
         .add({"Name": username, "Message": message, "Timestamp": time,"UserDocId" : userDocId});
   }
 
-  
-
 }
